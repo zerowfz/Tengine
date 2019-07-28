@@ -140,7 +140,7 @@ void release_tengine(void)
     if(mem_prof && mem_prof[0]=='1')
          dump_mem_prof();
 }
-
+//该函数主要配置好engine->graph->context
 graph_t create_graph(context_t context, const char* model_format, const char* fname, ...)
 {
     va_list argp;
@@ -152,6 +152,7 @@ graph_t create_graph(context_t context, const char* model_format, const char* fn
     if(exec_context == nullptr)
     {
         if(fname)
+        //初始化了设备信息，dev_list_
             exec_context = ( ExecContext* )create_context(fname, 0);
         else
             exec_context = ( ExecContext* )create_context("FOR_EMPTY", 0);
@@ -183,7 +184,8 @@ graph_t create_graph(context_t context, const char* model_format, const char* fn
     std::string model_name(tmp_buf);
 
     model_name += graph_name;
-
+//vload_File_model:根据model_format以及传入参数完成静态图的生成(graph,node,op,以及模型数据的传入等信息。)
+//静态图同样也是通过Manager类来了进行管理。
     if(model_format && vload_file_model(exec_context, model_name.c_str(), model_format, fname, argp) < 0)
     {
         if(new_context_created)
@@ -196,6 +198,7 @@ graph_t create_graph(context_t context, const char* model_format, const char* fn
 
     graph_t graph;
 
+//通过staticgraph创建graph，然后将graphexcutor类传入到execEngine类中。
     if(model_format)
         graph = create_graph_in_context(exec_context, graph_name, model_name.c_str());
     else
